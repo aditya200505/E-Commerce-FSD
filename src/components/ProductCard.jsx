@@ -1,20 +1,20 @@
-import React, { useContext } from "react";
-import { CartContext } from "../App"; // Import CartContext
+import React from "react";
+import { Link } from "react-router-dom";
 
-function ProductCard({ product }) { // Destructure product prop
-  const { addToCart } = useContext(CartContext);
-  const { id, name, price, image } = product; // Destructure product details
+function ProductCard({ id, title, image, category, price, rating, stock, description, onAddToCart }) {
 
   const handleAddToCart = () => {
-    addToCart(product); // Pass the entire product object to addToCart
+    onAddToCart({ id, title, image, price, stock });
   };
 
   return (
     <div className="card">
-      <img src={image} alt={name} /> {/* Add alt attribute for accessibility */}
-      <h3>{name}</h3>
-      <h4>₹{price.toFixed(2)}</h4> {/* Format price to 2 decimal places */}
-      <button onClick={handleAddToCart}>Add to Cart</button> {/* Change button text and add onClick */}
+      <Link to={`/products/${id}`}>
+        <img src={image} alt={title} />
+      </Link>
+      <h3>{title}</h3>
+      <h4>₹{price.toFixed(2)}</h4>
+      <button onClick={handleAddToCart}>Add to Cart</button>
     </div>
   );
 }

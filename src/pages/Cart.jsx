@@ -1,9 +1,41 @@
-import React, { useContext } from "react";
-import { CartContext } from "../App";
-import { Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import CartItem from '../components/CartItem'; // Import the new CartItem component
+import CouponBox from '../components/CouponBox'; // Import the new CouponBox component
+import { CartContext } from '../App';
+import { calculateSubtotal, calculateDiscount, calculateGST, calculatePlatformTax, calculateGrandTotal } from '../cartCalculations';
 
 function Cart() {
-  const { cart, getTotalCartValue, increaseQuantity, decreaseQuantity, removeItem } = useContext(CartContext);
+  const { cart, removeFromCart, increaseQuantity, decreaseQuantity } = useContext(CartContext);
+  const navigate = useNavigate();
+
+  const [couponCode, setCouponCode] = useState('');
+  const [couponMessage, setCouponMessage] = useState(null);
+
+  const applyCoupon = (code) => {
+    const validCoupons = ['SAVE10', 'SAVE20', 'WELCOME50'];
+    const normalizedCode = code.toUpperCase();
+
+    if (validCoupons.includes(normalizedCode)) {
+      setCouponCode(normalizedCode);
+      setCouponMessage('Coupon Applied Successfully!');
+    } else {
+      setCouponCode('');
+      setCouponMessage('Invalid Coupon');
+    }
+  };
+
+  const subtotal = calculateSubtotal(cart);
+  const discount = calculateDiscount(subtotal, couponCode);
+  const afterDiscount = subtotal - discount;
+  const gst = afterDiscount * 0.18;
+  const platformTax = afterDiscount * 0.02;
+  const grandTotal = afterDiscount + gst + platformTax;
+
+  const handleProceedToCheckout = () => {
+    const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    navigate('/thankyou', { state: { orderId, grandTotal } });
+  };
 
   return (
     <div className="cart-page">
@@ -18,28 +50,26 @@ function Cart() {
         <>
           <div className="cart-items">
             {cart.map((item) => (
-              <div key={item.id} className="cart-item">
-                <img src={item.image} alt={item.name} className="cart-item-image" />
-                <div className="cart-item-details">
-                  <h3>{item.name}</h3>
-                  <p>Price: ₹{item.price.toFixed(2)}</p>
-                  <div className="cart-item-controls">
-                    <button onClick={() => decreaseQuantity(item.id)}>-</button>
-                    <span>{item.quantity}</span>
-                    <button onClick={() => increaseQuantity(item.id)}>+</button>
-                    <button onClick={() => removeItem(item.id)} className="remove-item-button">Remove</button>
-                  </div>
-                  <p>Subtotal: ₹{(item.price * item.quantity).toFixed(2)}</p>
-                </div>
-              </div>
+              <CartItem
+                key={item.id}
+                item={item}
+                onIncreaseQuantity={increaseQuantity}
+                onDecreaseQuantity={decreaseQuantity}
+                onRemoveItem={removeFromCart}
+              />
             ))}
           </div>
 
-          <div className="cart-summary">
-            <h2>Cart Summary</h2>
-            <p>Total Items: {cart.reduce((total, item) => total + item.quantity, 0)}</p>
-            <p className="cart-total">Total Value: ₹{getTotalCartValue()}</p>
-            <button className="checkout-button">Proceed to Checkout</button>
+          <CouponBox currentCoupon={couponCode} onApplyCoupon={applyCoupon} couponMessage={couponMessage} />
+
+          <div className="cart-summary"> 
+            <h2>Order Summary</h2> 
+            <p>Subtotal: ₹{subtotal.toFixed(2)}</p> 
+            {discount > 0 && <p style={{ color: 'green' }}>Discount: -₹{discount.toFixed(2)}</p>}
+            <p>GST (18%): ₹{gst.toFixed(2)}</p>
+            <p>Platform Tax (2%): ₹{platformTax.toFixed(2)}</p>
+            <p className="cart-total">Grand Total: ₹{grandTotal.toFixed(2)}</p>
+            <button className="checkout-button" onClick={handleProceedToCheckout}>Proceed to Checkout</button>
           </div>
         </>
       )}

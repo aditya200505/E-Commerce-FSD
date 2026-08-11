@@ -10,6 +10,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart"; // Import the new Cart component
+import ThankYou from "./pages/ThankYou"; // Import ThankYou page
 
 export const CartContext = createContext();
 
@@ -53,6 +54,10 @@ function App() {
     setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
   };
 
+  const clearCart = () => {
+    setCart([]);
+  };
+
   // Calculate total value of items in the cart
   const getTotalCartValue = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
@@ -75,7 +80,7 @@ function App() {
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, getTotalCartValue, getTotalCartItems, increaseQuantity, decreaseQuantity, removeItem }}>
+    <CartContext.Provider value={{ cart, addToCart, getTotalCartValue, getTotalCartItems, increaseQuantity, decreaseQuantity, removeItem, clearCart }}>
       <BrowserRouter>
         <Navbar />
         <Routes>
@@ -83,8 +88,9 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/details" element={<ProductDetails />} />
+          <Route path="/details/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/thankyou" element={<ThankYou />} />
         </Routes>
         <Footer />
       </BrowserRouter>

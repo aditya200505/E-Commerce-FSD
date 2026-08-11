@@ -16,7 +16,7 @@ function Navbar(){
         <div className="cart-info">
           {/* Placeholder link for a future cart page */}
           <Link to="/cart">
-            🛒 Cart ({getTotalCartItems()})
+            Cart ({getTotalCartItems()})
           </Link>
         </div>
       </div>
