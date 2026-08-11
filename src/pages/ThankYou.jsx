@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CartContext } from '../App';
 
 /**
@@ -9,14 +9,18 @@ import { CartContext } from '../App';
 function ThankYou() {
     const { clearCart } = useContext(CartContext);
     const navigate = useNavigate();
-    const [orderId] = useState(() => Math.random().toString(36).substring(2, 10).toUpperCase());
+    const location = useLocation();
+    const stateOrderId = location.state?.orderId;
+    const grandTotal = location.state?.grandTotal;
+
+    const [orderId] = useState(() => stateOrderId || Math.random().toString(36).substring(2, 10).toUpperCase());
 
     useEffect(() => {
-        // Clear the cart when this page loads
+        // Clear the cart once when this page mounts
         if (clearCart) {
             clearCart();
         }
-    }, [clearCart]);
+    }, []); // Run only on mount to prevent infinite render loop
 
     const handleShopMore = () => {
         navigate('/products');
@@ -32,6 +36,11 @@ function ThankYou() {
             <p className="thankyou-order-id">
                 Order ID: <strong>#{orderId}</strong>
             </p>
+            {grandTotal && (
+                <p className="thankyou-order-id">
+                    Total Paid: <strong>₹{Number(grandTotal).toFixed(2)}</strong>
+                </p>
+            )}
             <button onClick={handleShopMore} className="shop-more-button">
                 Shop More
             </button>

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom'; // Hook to get URL parameters
 import { fetchProductById } from '../productApi';
+import { CartContext } from '../App';
 
 /**
  * Product Details page component.
  * Fetches and displays detailed information for a single product based on its ID from the URL.
- * @param {Object} props - The component props.
- * @param {function} props.addToCart - Function to add a product to the cart.
  */
-function ProductDetails({ addToCart }){
+function ProductDetails(){
+    const { addToCart } = useContext(CartContext);
     // Get the product ID from the URL parameters
     const { id } = useParams();
     // State to store the fetched product details
